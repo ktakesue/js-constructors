@@ -10,7 +10,19 @@
  * @property {string} description
  * @method   getDetails
  */
-
+function Spell(name, cost, description){
+        console.log(name);
+        console.log(cost);
+        console.log(description);
+    
+    this.name = name;
+    this.cost = cost;
+    this.description = description;
+    
+    Spell.prototype.getDetails = function(){
+        return this.name + " " + this.cost + " " + this.description; 
+    };
+}
   /**
    * Returns a string of all of the spell's details.
    * The format doesn't matter, as long as it contains the spell name, cost, and description.
@@ -43,6 +55,12 @@
  * @property {number} damage
  * @property {string} description
  */
+function DamageSpell(name, cost, damage, description){
+        console.log(name + " " + cost + " " + damage + " " + description);
+    Spell.call(this, name, cost, description);
+    this.damage = damage;
+}
+    DamageSpell.prototype = Object.create(Spell.prototype);
 
 /**
  * Now that you've created some spells, let's create
@@ -60,7 +78,13 @@
  * @method  spendMana
  * @method  invoke
  */
-
+function Spellcaster(name, health, mana){
+        console.log(name + " " + health + " " + mana);
+    this.name = name;
+    this.health = health;
+    this.mana = mana;
+    this.isAlive = true;
+}
   /**
    * @method inflictDamage
    *
@@ -71,7 +95,14 @@
    *
    * @param  {number} damage  Amount of damage to deal to the spellcaster
    */
-
+    Spellcaster.prototype.inflictDamage = function(damage){
+        this.health -= damage;
+        if (damage > this.health){
+            this.health = 0;
+            this.isAlive = false;
+        }
+    };
+  
   /**
    * @method spendMana
    *
@@ -81,6 +112,14 @@
    * @param  {number} cost      The amount of mana to spend.
    * @return {boolean} success  Whether mana was successfully spent.
    */
+    Spellcaster.prototype.spendMana = function(cost){
+        if (this.mana >= cost){
+            this.mana -= cost;
+            return true;
+        } else{
+            return false;
+        }  
+    };
 
   /**
    * @method invoke
@@ -90,6 +129,11 @@
    * If it is a `DamageSpell`, the second parameter should be a `Spellcaster`.
    * The function should return `false` if the above conditions are not satisfied.
    *
+   * spell instanceof Spell// true;
+   * spell instanceof DamageSpell// true;
+   * target instanceof Spellcaster//true;
+   * 
+   * 
    * You should use `instanceof` to check for these conditions.
    *
    * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
@@ -108,3 +152,24 @@
    * @param  {Spellcaster} target         The spell target to be inflicted.
    * @return {boolean}                    Whether the spell was successfully cast.
    */
+    Spellcaster.prototype.invoke = function(spell, target){
+        if(spell instanceof DamageSpell && target instanceof Spellcaster){
+            if(this.mana >= spell.cost){
+                target.inflictDamage(spell.damage);
+                this.spendMana(spell.cost);
+                return true;
+            }else{
+                return false;
+            }
+//checks to see if it is a damagespell and if there's a target, if there is, checks to see if there's any mana to use spell//            
+        }else if(spell instanceof Spell && !(spell instanceof DamageSpell)){
+            if(this.mana >= spell.cost){
+                this.spendMana(spell.cost);
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    };
+        
